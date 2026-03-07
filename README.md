@@ -41,6 +41,12 @@ async fn main() {
 ```toml
 [dependencies]
 tokio-memory = { git = "https://github.com/Mattbusel/tokio-memory" }
+```
+
+Or one-liner:
+
+```ash
+cargo add --git https://github.com/Mattbusel/tokio-memory
 tokio = { version = "1", features = ["full"] }
 ```
 
