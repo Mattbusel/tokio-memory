@@ -40,13 +40,13 @@ async fn main() {
 
 ```toml
 [dependencies]
-tokio-memory = { git = "https://github.com/Mattbusel/tokio-memory" }
+tokio-memory = { git = "https://gitlab.com/mattbusel/tokio-memory" }
 ```
 
 Or one-liner:
 
 ```ash
-cargo add --git https://github.com/Mattbusel/tokio-memory
+cargo add --git https://gitlab.com/mattbusel/tokio-memory
 tokio = { version = "1", features = ["full"] }
 ```
 
@@ -58,4 +58,4 @@ cargo test
 
 ---
 
-> Used inside [tokio-prompt-orchestrator](https://github.com/Mattbusel/tokio-prompt-orchestrator) -- a production Rust orchestration layer for LLM pipelines. See the full [primitive library collection](https://github.com/Mattbusel/rust-crates).
+> Used inside [tokio-prompt-orchestrator](https://gitlab.com/mattbusel/tokio-prompt-orchestrator) -- a production Rust orchestration layer for LLM pipelines. See the full [primitive library collection](https://gitlab.com/mattbusel/rust-crates).
