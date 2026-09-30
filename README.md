@@ -1,6 +1,6 @@
 # tokio-memory
 
-[![CI](https://github.com/Mattbusel/tokio-memory/actions/workflows/ci.yml/badge.svg)](https://github.com/Mattbusel/tokio-memory/actions/workflows/ci.yml)
+
 [![crates.io](https://img.shields.io/crates/v/tokio-memory.svg)](https://crates.io/crates/tokio-memory)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
@@ -95,7 +95,7 @@ src/
 
 Version 0.1. Only in-memory store implementations ship with the crate. Retrieval filters on metadata (agent, session, tag, kind, time); there is no text or embedding search. Decay policies compute strength but do not prune stores on their own. The `tokio-memory/` subfolder in the repository is an older copy of the crate and is not part of the build.
 
-For a sibling crate with causal event chains, a concept graph, fuzzy retrieval and a multi-agent broadcast bus, see [tokio-agent-memory](https://github.com/Mattbusel/tokio-agent-memory).
+For a sibling crate with causal event chains, a concept graph, fuzzy retrieval and a multi-agent broadcast bus, see [tokio-agent-memory](https://gitlab.com/mattbusel/tokio-agent-memory).
 
 ```bash
 cargo test
@@ -107,4 +107,4 @@ MIT, see [LICENSE](LICENSE).
 
 ---
 
-Part of a set of Rust crates for LLM agents, see [rust-crates](https://github.com/Mattbusel/rust-crates).
+Part of a set of Rust crates for LLM agents, see [rust-crates](https://gitlab.com/mattbusel/rust-crates).
