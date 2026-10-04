@@ -20,6 +20,7 @@ Each store is an `async_trait` (`EpisodicStore`, `SemanticStore`), so you can st
 | `working` | `WorkingBuffer`: bounded priority buffer, `pop_highest` with FIFO tie-breaking |
 | `shared` | `SharedSpace`: namespaced, versioned facts with a `ConflictResolver` (`LastWriteWins`, `HighestConfidenceWins`, or your own) |
 | `persistence` | `MemorySnapshot` and `encode_snapshot` / `decode_snapshot` using `postcard` |
+| `sqlite` (feature) | `SqliteMemory`: both store traits in one SQLite file, so memory survives restarts, plus `search` (full-text, BM25-ranked) over episode content |
 
 Strength and confidence are validated to `[0.0, 1.0]` on construction, and property tests (`proptest`) cover decay bounds and snapshot round-trips.
 
@@ -76,9 +77,42 @@ async fn main() -> Result<(), MemoryError> {
 }
 ```
 
+## Durable memory with search (`sqlite` feature)
+
+```toml
+tokio-memory = { version = "0.2", features = ["sqlite"] }
+```
+
+`SqliteMemory` implements `EpisodicStore` and `SemanticStore` on a single SQLite file, so you can swap it in for the in-memory stores without touching agent code. SQLite is compiled into the crate (nothing to install), calls run on Tokio's blocking pool, and every episode is indexed with SQLite's FTS5 engine so an agent can find memories by what they say:
+
+```rust,no_run
+use tokio_memory::episodic::{Episode, EpisodeKind, EpisodicStore};
+use tokio_memory::id::{AgentId, SessionId, Tag};
+use tokio_memory::sqlite::SqliteMemory;
+
+#[tokio::main]
+async fn main() -> Result<(), tokio_memory::MemoryError> {
+    let memory = SqliteMemory::open("agent-memory.db").await?;
+    let (agent, session) = (AgentId::new(), SessionId::new());
+
+    memory.record(Episode::new(agent.clone(), session.clone(), EpisodeKind::Observation,
+        "User wants a window seat on the Lisbon flight", 0.9, vec![Tag::new("travel")])?).await?;
+    memory.record(Episode::new(agent, session, EpisodeKind::Observation,
+        "User is vegetarian", 0.8, vec![Tag::new("preference")])?).await?;
+
+    // Next week, after a restart: what do we know about the flight?
+    for (episode, score) in memory.search("lisbon flight", 5).await? {
+        println!("{score:.2}  {}", episode.content);
+    }
+    Ok(())
+}
+```
+
+Plain words are matched all-of, in any order; FTS5 syntax (`"window seat"`, `OR`, `NOT`, `veg*`) works too. The feature needs Rust 1.85 (the rest of the crate builds on 1.79).
+
 ## How it works
 
-```
+```text
 src/
   id.rs              MemoryId, AgentId, SessionId, NamespaceId, EntityId, Tag
   episodic/          Episode, EpisodicStore, InMemoryEpisodicStore (DashMap + insertion order), TimeRange
@@ -89,16 +123,17 @@ src/
   working/buffer.rs  WorkingBuffer
   shared/            SharedSpace, VersionedFact, ConflictResolver implementations
   persistence/       MemorySnapshot, postcard codec
+  sqlite.rs          SqliteMemory: SQLite tables + FTS5 index (feature `sqlite`)
 ```
 
 ## Status and limitations
 
-Version 0.1. Only in-memory store implementations ship with the crate. Retrieval filters on metadata (agent, session, tag, kind, time); there is no text or embedding search. Decay policies compute strength but do not prune stores on their own. The `tokio-memory/` subfolder in the repository is an older copy of the crate and is not part of the build.
+Version 0.2. Stores: in-memory, and SQLite with full-text search (`sqlite` feature). Retrieval filters on metadata (agent, session, tag, kind, time) and, with SQLite, on words; there is no embedding search yet. Decay policies compute strength but do not prune stores on their own.
 
 For a sibling crate with causal event chains, a concept graph, fuzzy retrieval and a multi-agent broadcast bus, see [tokio-agent-memory](https://gitlab.com/mattbusel/tokio-agent-memory).
 
 ```bash
-cargo test
+cargo test --all-features
 ```
 
 ## License

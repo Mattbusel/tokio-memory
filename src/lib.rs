@@ -10,7 +10,8 @@
 //! - [`retrieval`] — Fluent query builder for episodic recall.
 //! - [`consolidation`] — Policy-driven episode → fact promotion pipeline.
 //! - [`shared`] — Namespaced shared memory with conflict resolution.
-//! - [`persistence`] — Snapshot serialisation/deserialisation (bincode).
+//! - [`persistence`] — Snapshot serialisation/deserialisation (postcard).
+//! - `sqlite` — Durable SQLite store with full-text search (`sqlite` feature).
 //! - [`error`] — Unified [`MemoryError`] type.
 //! - [`id`] — Strongly-typed ID newtypes.
 
@@ -23,6 +24,8 @@ pub mod persistence;
 pub mod retrieval;
 pub mod semantic;
 pub mod shared;
+#[cfg(feature = "sqlite")]
+pub mod sqlite;
 pub mod working;
 
 // Convenience re-exports
@@ -93,3 +96,8 @@ mod property_tests {
         }
     }
 }
+
+/// Every Rust example in the README is compiled by `cargo test --doc`.
+#[cfg(doctest)]
+#[doc = include_str!("../README.md")]
+mod readme_examples {}

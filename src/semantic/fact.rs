@@ -84,6 +84,30 @@ impl Fact {
     }
 }
 
+
+impl Fact {
+    /// Construct a [`Fact`] with an explicit [`MemoryId`] (for deterministic/idempotent upserts).
+    pub fn with_id(
+        id: MemoryId,
+        subject: EntityId,
+        predicate: impl Into<String>,
+        object: FactValue,
+        confidence: f32,
+    ) -> Result<Self, MemoryError> {
+        if !(0.0..=1.0).contains(&confidence) {
+            return Err(MemoryError::InvalidConfidence { value: confidence });
+        }
+        Ok(Self {
+            id,
+            subject,
+            predicate: predicate.into(),
+            object,
+            confidence,
+            asserted_at: chrono::Utc::now(),
+        })
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -135,28 +159,5 @@ mod tests {
         let e = EntityId::new("e");
         let f = Fact::new(e, "my-predicate", FactValue::Bool(false), 0.5).unwrap();
         assert_eq!(f.predicate, "my-predicate");
-    }
-}
-
-impl Fact {
-    /// Construct a [`Fact`] with an explicit [`MemoryId`] (for deterministic/idempotent upserts).
-    pub fn with_id(
-        id: MemoryId,
-        subject: EntityId,
-        predicate: impl Into<String>,
-        object: FactValue,
-        confidence: f32,
-    ) -> Result<Self, MemoryError> {
-        if !(0.0..=1.0).contains(&confidence) {
-            return Err(MemoryError::InvalidConfidence { value: confidence });
-        }
-        Ok(Self {
-            id,
-            subject,
-            predicate: predicate.into(),
-            object,
-            confidence,
-            asserted_at: chrono::Utc::now(),
-        })
     }
 }

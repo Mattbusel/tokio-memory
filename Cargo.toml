@@ -1,9 +1,16 @@
 [package]
 name = "tokio-memory"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 rust-version = "1.79"
-description = "Agent memory primitives: episodic, semantic, working memory with decay and consolidation"
+description = "Agent memory primitives: episodic, semantic, working memory with decay and consolidation, plus a durable SQLite store with full-text search"
+readme = "README.md"
+keywords = ["tokio", "memory", "agents", "sqlite", "ai"]
+categories = ["asynchronous", "memory-management", "database"]
+license = "MIT"
+repository = "https://gitlab.com/mattbusel/tokio-memory"
+homepage = "https://gitlab.com/mattbusel/tokio-memory"
+documentation = "https://docs.rs/tokio-memory"
 
 [dependencies]
 # tokio: async runtime — core dependency
@@ -30,14 +37,27 @@ postcard = { version = "1", features = ["alloc"] }
 # thiserror: zero-cost error derive — replaces manual Display impls
 thiserror = "1"
 async-trait = "0.1.89"
+rusqlite = { version = "0.40.2", features = ["bundled"], optional = true }
 
 [dev-dependencies]
 # proptest: property-based testing — required for algorithmic correctness guarantees
 proptest = "1"
+tempfile = "3.27.0"
 
 # tokio test utilities
 tokio = { version = "1.40", features = ["full", "test-util"] }
 
 [lints.rust]
+
+[features]
+# Durable SQLite backend with full-text search (SQLite is compiled in).
+sqlite = ["dep:rusqlite"]
 # Enforce zero-panic policy in production paths
 # (clippy lints configured via clippy.toml or inline attributes)
+
+[[test]]
+name = "sqlite_store"
+required-features = ["sqlite"]
+
+[package.metadata.docs.rs]
+all-features = true
