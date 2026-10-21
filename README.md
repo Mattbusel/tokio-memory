@@ -1,5 +1,13 @@
 # tokio-memory
 
+<!-- outcome-block -->
+**Start agent memory in-process today and move it to Postgres, SQLite or a vector DB later without changing agent code.**
+
+**Why this over the alternatives:** Every store is a trait with an in-memory implementation, so swapping the backend is a type change, not a rewrite.
+
+**Guarantee:** if it doesn't do what this README says, [open an issue](https://github.com/Mattbusel/tokio-memory/issues) and I'll fix it.
+<!-- outcome-block -->
+
 
 [![crates.io](https://img.shields.io/crates/v/tokio-memory.svg)](https://crates.io/crates/tokio-memory)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
