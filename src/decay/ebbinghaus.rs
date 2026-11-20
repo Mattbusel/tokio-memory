@@ -120,7 +120,10 @@ mod tests {
         let created = Utc::now();
         let earlier = created - Duration::seconds(10);
         let s = policy.strength_at(created, earlier);
-        assert!((s - 1.0).abs() < 1e-5, "expected 1.0 for negative elapsed, got {s}");
+        assert!(
+            (s - 1.0).abs() < 1e-5,
+            "expected 1.0 for negative elapsed, got {s}"
+        );
     }
 
     #[test]

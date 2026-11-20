@@ -1,12 +1,18 @@
-# tokio-memory
+# tokio-memory: do not start agent memory with a database
 
-<!-- outcome-block -->
-**Start agent memory in-process today and move it to Postgres, SQLite or a vector DB later without changing agent code.**
+**Why this exists:** Agent projects pick Postgres, a vector database or a hosted memory service on day one, then write the agent against that client, and changing the backend later means rewriting the agent.
 
-**Why this over the alternatives:** Every store is a trait with an in-memory implementation, so swapping the backend is a type change, not a rewrite.
+**Why this instead of the usual approach:** Memory libraries bind you to their store. Here every store (episodic, semantic, working) is a trait with an in-memory implementation and a durable SQLite store with full-text search, plus a query builder, decay and episode-to-fact consolidation, so moving backends is a type change, not a rewrite.
 
-**Guarantee:** if it doesn't do what this README says, [open an issue](https://github.com/Mattbusel/tokio-memory/issues) and I'll fix it.
-<!-- outcome-block -->
+**Why adopt it today:** `cargo add tokio-memory`, start in memory in your tests and SQLite in production, and implement the trait for your own store when you outgrow it.
+
+**Built for:** Rust developers prototyping agents who want memory working today and the storage decision deferred until they know their access pattern.
+
+**Tradeoffs we chose on purpose:**
+
+- No vector index built in: semantic search is full-text unless you implement the trait over a vector store.
+- The traits are the contract; backend-specific features stay behind your implementation.
+
 
 
 [![crates.io](https://img.shields.io/crates/v/tokio-memory.svg)](https://crates.io/crates/tokio-memory)

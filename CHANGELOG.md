@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.2 (2026-11-20)
+
+- README opens with the side this crate takes: do not start agent memory with a database. Why it exists, why it beats the usual approach, why adopt it today, who it is for and the tradeoffs made on purpose.
+- crates.io description and keywords say the same thing.
+
 ## [0.2.0] - 2026-10-04
 
 ### Added

@@ -10,7 +10,15 @@ use tokio_memory::id::{AgentId, SessionId};
 use tokio_memory::semantic::store::{InMemorySemanticStore, SemanticStore};
 
 fn make_episode(agent: AgentId, session: SessionId, strength: f32, content: &str) -> Episode {
-    Episode::new(agent, session, EpisodeKind::Observation, content, strength, vec![]).unwrap()
+    Episode::new(
+        agent,
+        session,
+        EpisodeKind::Observation,
+        content,
+        strength,
+        vec![],
+    )
+    .unwrap()
 }
 
 #[tokio::test]

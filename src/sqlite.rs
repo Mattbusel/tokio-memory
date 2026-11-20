@@ -108,7 +108,9 @@ impl SqliteMemory {
     }
 
     async fn init(conn: Connection) -> Result<Self, MemoryError> {
-        let memory = Self { conn: Arc::new(Mutex::new(conn)) };
+        let memory = Self {
+            conn: Arc::new(Mutex::new(conn)),
+        };
         memory
             .with(|c| {
                 c.execute_batch("PRAGMA foreign_keys = ON;")?;
@@ -126,7 +128,9 @@ impl SqliteMemory {
     {
         let conn = Arc::clone(&self.conn);
         tokio::task::spawn_blocking(move || {
-            let mut guard = conn.lock().map_err(|_| db_err("connection lock poisoned"))?;
+            let mut guard = conn
+                .lock()
+                .map_err(|_| db_err("connection lock poisoned"))?;
             f(&mut guard).map_err(db_err)
         })
         .await
@@ -139,7 +143,11 @@ impl SqliteMemory {
     /// Plain words are matched as all-of, in any order and any case; FTS5
     /// syntax (`"exact phrase"`, `OR`, `NOT`, `prefix*`) is also accepted.
     /// Words are matched exactly (no stemming).
-    pub async fn search(&self, query: &str, limit: usize) -> Result<Vec<(Episode, f64)>, MemoryError> {
+    pub async fn search(
+        &self,
+        query: &str,
+        limit: usize,
+    ) -> Result<Vec<(Episode, f64)>, MemoryError> {
         let fts_query = to_fts_query(query);
         if fts_query.is_empty() {
             return Ok(Vec::new());
@@ -185,12 +193,18 @@ impl SqliteMemory {
             .map(|n| n as usize)
     }
 
-    async fn episodes_where(&self, sql: &'static str, arg: Vec<String>) -> Result<Vec<Episode>, MemoryError> {
+    async fn episodes_where(
+        &self,
+        sql: &'static str,
+        arg: Vec<String>,
+    ) -> Result<Vec<Episode>, MemoryError> {
         let bodies = self
             .with(move |c| {
                 let mut stmt = c.prepare(sql)?;
                 let rows = stmt
-                    .query_map(rusqlite::params_from_iter(arg.iter()), |r| r.get::<_, String>(0))?
+                    .query_map(rusqlite::params_from_iter(arg.iter()), |r| {
+                        r.get::<_, String>(0)
+                    })?
                     .collect::<rusqlite::Result<Vec<_>>>()?;
                 Ok(rows)
             })
@@ -206,7 +220,8 @@ fn to_fts_query(query: &str) -> String {
     let q = query.trim();
     let uses_syntax = q.contains('"')
         || q.ends_with('*')
-        || q.split_whitespace().any(|w| matches!(w, "AND" | "OR" | "NOT" | "NEAR"));
+        || q.split_whitespace()
+            .any(|w| matches!(w, "AND" | "OR" | "NOT" | "NEAR"));
     if uses_syntax {
         return q.to_owned();
     }
@@ -260,8 +275,10 @@ impl EpisodicStore for SqliteMemory {
         let key = id.to_string();
         let body = self
             .with(move |c| {
-                c.query_row("SELECT body FROM episodes WHERE id = ?1", [key], |r| r.get::<_, String>(0))
-                    .optional()
+                c.query_row("SELECT body FROM episodes WHERE id = ?1", [key], |r| {
+                    r.get::<_, String>(0)
+                })
+                .optional()
             })
             .await?;
         match body {
@@ -296,7 +313,8 @@ impl EpisodicStore for SqliteMemory {
     }
 
     async fn all(&self) -> Result<Vec<Episode>, MemoryError> {
-        self.episodes_where("SELECT body FROM episodes ORDER BY ts", Vec::new()).await
+        self.episodes_where("SELECT body FROM episodes ORDER BY ts", Vec::new())
+            .await
     }
 
     async fn recall_by_agent(&self, agent_id: &AgentId) -> Result<Vec<Episode>, MemoryError> {
@@ -327,7 +345,9 @@ impl SemanticStore for SqliteMemory {
 
     async fn retract_fact(&self, id: &MemoryId) -> Result<(), MemoryError> {
         let key = id.to_string();
-        let removed = self.with(move |c| c.execute("DELETE FROM facts WHERE id = ?1", [key])).await?;
+        let removed = self
+            .with(move |c| c.execute("DELETE FROM facts WHERE id = ?1", [key]))
+            .await?;
         if removed == 0 {
             return Err(MemoryError::NotFound(id.clone()));
         }
@@ -370,7 +390,10 @@ mod tests {
     fn free_text_becomes_quoted_and_terms() {
         assert_eq!(to_fts_query("Lisbon flight?"), "\"Lisbon\" AND \"flight\"");
         assert_eq!(to_fts_query("  "), "");
-        assert_eq!(to_fts_query("\"window seat\" OR aisle"), "\"window seat\" OR aisle");
+        assert_eq!(
+            to_fts_query("\"window seat\" OR aisle"),
+            "\"window seat\" OR aisle"
+        );
         assert_eq!(to_fts_query("lisb*"), "lisb*");
     }
 }

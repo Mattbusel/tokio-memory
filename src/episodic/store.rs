@@ -123,13 +123,9 @@ impl InMemoryEpisodicStore {
         order
             .iter()
             .filter_map(|id| {
-                self.map.get(id).and_then(|ep| {
-                    if pred(&ep) {
-                        Some(ep.clone())
-                    } else {
-                        None
-                    }
-                })
+                self.map
+                    .get(id)
+                    .and_then(|ep| if pred(&ep) { Some(ep.clone()) } else { None })
             })
             .collect()
     }
@@ -334,11 +330,23 @@ mod tests {
         let session = SessionId::new();
 
         store
-            .record(make_episode(a1.clone(), session.clone(), "a1", vec![], Utc::now()))
+            .record(make_episode(
+                a1.clone(),
+                session.clone(),
+                "a1",
+                vec![],
+                Utc::now(),
+            ))
             .await
             .unwrap();
         store
-            .record(make_episode(a2.clone(), session.clone(), "a2", vec![], Utc::now()))
+            .record(make_episode(
+                a2.clone(),
+                session.clone(),
+                "a2",
+                vec![],
+                Utc::now(),
+            ))
             .await
             .unwrap();
 

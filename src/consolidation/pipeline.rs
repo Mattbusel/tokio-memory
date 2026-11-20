@@ -60,10 +60,7 @@ impl ConsolidationPipeline {
     ///
     /// # Panics
     /// This function never panics.
-    pub fn new(
-        episodic: Arc<dyn EpisodicStore>,
-        semantic: Arc<dyn SemanticStore>,
-    ) -> Self {
+    pub fn new(episodic: Arc<dyn EpisodicStore>, semantic: Arc<dyn SemanticStore>) -> Self {
         Self {
             episodic,
             semantic,
@@ -92,11 +89,13 @@ impl ConsolidationPipeline {
     /// # Panics
     /// This function never panics.
     pub async fn run_once(&self) -> Result<ConsolidationReport, MemoryError> {
-        let episodes = self.episodic.all().await.map_err(|e| {
-            MemoryError::ConsolidationFailed {
+        let episodes = self
+            .episodic
+            .all()
+            .await
+            .map_err(|e| MemoryError::ConsolidationFailed {
                 reason: e.to_string(),
-            }
-        })?;
+            })?;
 
         let episodes_processed = episodes.len();
         let mut facts_extracted = 0usize;
@@ -106,12 +105,11 @@ impl ConsolidationPipeline {
                 if policy.should_consolidate(episode) {
                     let facts = policy.extract_facts(episode);
                     for fact in facts {
-                        self.semantic
-                            .assert_fact(fact)
-                            .await
-                            .map_err(|e| MemoryError::ConsolidationFailed {
+                        self.semantic.assert_fact(fact).await.map_err(|e| {
+                            MemoryError::ConsolidationFailed {
                                 reason: e.to_string(),
-                            })?;
+                            }
+                        })?;
                         facts_extracted += 1;
                     }
                 }

@@ -106,7 +106,10 @@ mod tests {
         let resolver = LastWriteWins;
         let existing = versioned(make_fact(0.9));
         let incoming = make_fact(0.1);
-        assert!(matches!(resolver.resolve(&existing, &incoming), Resolution::Accept));
+        assert!(matches!(
+            resolver.resolve(&existing, &incoming),
+            Resolution::Accept
+        ));
     }
 
     #[test]
@@ -114,7 +117,10 @@ mod tests {
         let resolver = HighestConfidenceWins;
         let existing = versioned(make_fact(0.5));
         let incoming = make_fact(0.8);
-        assert!(matches!(resolver.resolve(&existing, &incoming), Resolution::Accept));
+        assert!(matches!(
+            resolver.resolve(&existing, &incoming),
+            Resolution::Accept
+        ));
     }
 
     #[test]
@@ -122,7 +128,10 @@ mod tests {
         let resolver = HighestConfidenceWins;
         let existing = versioned(make_fact(0.9));
         let incoming = make_fact(0.3);
-        assert!(matches!(resolver.resolve(&existing, &incoming), Resolution::Reject));
+        assert!(matches!(
+            resolver.resolve(&existing, &incoming),
+            Resolution::Reject
+        ));
     }
 
     #[test]
@@ -130,6 +139,9 @@ mod tests {
         let resolver = HighestConfidenceWins;
         let existing = versioned(make_fact(0.7));
         let incoming = make_fact(0.7);
-        assert!(matches!(resolver.resolve(&existing, &incoming), Resolution::Reject));
+        assert!(matches!(
+            resolver.resolve(&existing, &incoming),
+            Resolution::Reject
+        ));
     }
 }

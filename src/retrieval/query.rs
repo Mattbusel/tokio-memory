@@ -129,14 +129,10 @@ impl MemoryQuery {
     ///
     /// # Panics
     /// This function never panics.
-    pub async fn execute<S: EpisodicStore>(
-        &self,
-        store: &S,
-    ) -> Result<Vec<Episode>, MemoryError> {
+    pub async fn execute<S: EpisodicStore>(&self, store: &S) -> Result<Vec<Episode>, MemoryError> {
         let all = store.all().await?;
         let cutoff = self.since.map(|d| {
-            chrono::Utc::now()
-                - chrono::Duration::from_std(d).unwrap_or(chrono::Duration::MAX)
+            chrono::Utc::now() - chrono::Duration::from_std(d).unwrap_or(chrono::Duration::MAX)
         });
 
         let mut results: Vec<Episode> = all
@@ -192,10 +188,8 @@ mod tests {
         kind: EpisodeKind,
         tags: Vec<Tag>,
     ) -> std::pin::Pin<Box<dyn std::future::Future<Output = ()> + '_>> {
-        let ep = crate::episodic::episode::Episode::new(
-            agent, session, kind, "content", 0.8, tags,
-        )
-        .unwrap();
+        let ep = crate::episodic::episode::Episode::new(agent, session, kind, "content", 0.8, tags)
+            .unwrap();
         Box::pin(async move {
             store.record(ep).await.unwrap();
         })
@@ -206,7 +200,14 @@ mod tests {
         let store = InMemoryEpisodicStore::new();
         let a = AgentId::new();
         let s = SessionId::new();
-        ep(&store, a.clone(), s.clone(), EpisodeKind::Observation, vec![]).await;
+        ep(
+            &store,
+            a.clone(),
+            s.clone(),
+            EpisodeKind::Observation,
+            vec![],
+        )
+        .await;
         ep(&store, a.clone(), s.clone(), EpisodeKind::Action, vec![]).await;
 
         let results = MemoryQuery::new().execute(&store).await.unwrap();
@@ -219,8 +220,22 @@ mod tests {
         let a1 = AgentId::new();
         let a2 = AgentId::new();
         let s = SessionId::new();
-        ep(&store, a1.clone(), s.clone(), EpisodeKind::Observation, vec![]).await;
-        ep(&store, a2.clone(), s.clone(), EpisodeKind::Observation, vec![]).await;
+        ep(
+            &store,
+            a1.clone(),
+            s.clone(),
+            EpisodeKind::Observation,
+            vec![],
+        )
+        .await;
+        ep(
+            &store,
+            a2.clone(),
+            s.clone(),
+            EpisodeKind::Observation,
+            vec![],
+        )
+        .await;
 
         let results = MemoryQuery::new()
             .with_agent(a1.clone())
@@ -237,8 +252,22 @@ mod tests {
         let a = AgentId::new();
         let s = SessionId::new();
         let t = Tag::new("hot");
-        ep(&store, a.clone(), s.clone(), EpisodeKind::Observation, vec![t.clone()]).await;
-        ep(&store, a.clone(), s.clone(), EpisodeKind::Observation, vec![]).await;
+        ep(
+            &store,
+            a.clone(),
+            s.clone(),
+            EpisodeKind::Observation,
+            vec![t.clone()],
+        )
+        .await;
+        ep(
+            &store,
+            a.clone(),
+            s.clone(),
+            EpisodeKind::Observation,
+            vec![],
+        )
+        .await;
 
         let results = MemoryQuery::new()
             .with_tag(t)
@@ -254,7 +283,14 @@ mod tests {
         let a = AgentId::new();
         let s = SessionId::new();
         for _ in 0..5 {
-            ep(&store, a.clone(), s.clone(), EpisodeKind::Observation, vec![]).await;
+            ep(
+                &store,
+                a.clone(),
+                s.clone(),
+                EpisodeKind::Observation,
+                vec![],
+            )
+            .await;
         }
         let results = MemoryQuery::new().limit(3).execute(&store).await.unwrap();
         assert_eq!(results.len(), 3);
@@ -283,8 +319,22 @@ mod tests {
         let a = AgentId::new();
         let s1 = SessionId::new();
         let s2 = SessionId::new();
-        ep(&store, a.clone(), s1.clone(), EpisodeKind::Observation, vec![]).await;
-        ep(&store, a.clone(), s2.clone(), EpisodeKind::Observation, vec![]).await;
+        ep(
+            &store,
+            a.clone(),
+            s1.clone(),
+            EpisodeKind::Observation,
+            vec![],
+        )
+        .await;
+        ep(
+            &store,
+            a.clone(),
+            s2.clone(),
+            EpisodeKind::Observation,
+            vec![],
+        )
+        .await;
 
         let results = MemoryQuery::new()
             .with_session(s1.clone())

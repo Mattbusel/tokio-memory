@@ -51,7 +51,10 @@ mod tests {
         let id = MemoryId::new();
         let err = MemoryError::NotFound(id.clone());
         let msg = err.to_string();
-        assert!(msg.contains(&id.to_string()), "expected id in message: {msg}");
+        assert!(
+            msg.contains(&id.to_string()),
+            "expected id in message: {msg}"
+        );
     }
 
     #[test]

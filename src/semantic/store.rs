@@ -95,11 +95,7 @@ impl SemanticStore for InMemorySemanticStore {
     }
 
     async fn query_subject(&self, subject: &EntityId) -> Result<Vec<Fact>, MemoryError> {
-        Ok(self
-            .map
-            .get(subject)
-            .map(|v| v.clone())
-            .unwrap_or_default())
+        Ok(self.map.get(subject).map(|v| v.clone()).unwrap_or_default())
     }
 
     async fn all_facts(&self) -> Result<Vec<Fact>, MemoryError> {
@@ -118,8 +114,8 @@ impl SemanticStore for InMemorySemanticStore {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::semantic::fact::FactValue;
     use crate::id::EntityId;
+    use crate::semantic::fact::FactValue;
 
     fn make_fact(subject: &str, predicate: &str, val: &str) -> Fact {
         Fact::new(
@@ -193,8 +189,14 @@ mod tests {
     #[tokio::test]
     async fn test_semantic_store_multiple_facts_per_subject() {
         let store = InMemorySemanticStore::new();
-        store.assert_fact(make_fact("e1", "name", "Alice")).await.unwrap();
-        store.assert_fact(make_fact("e1", "role", "admin")).await.unwrap();
+        store
+            .assert_fact(make_fact("e1", "name", "Alice"))
+            .await
+            .unwrap();
+        store
+            .assert_fact(make_fact("e1", "role", "admin"))
+            .await
+            .unwrap();
         let facts = store.query_subject(&EntityId::new("e1")).await.unwrap();
         assert_eq!(facts.len(), 2);
     }

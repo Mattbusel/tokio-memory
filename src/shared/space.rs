@@ -81,26 +81,42 @@ impl SharedSpace {
         match self.store.get(&key) {
             None => {
                 // First write: accept unconditionally.
-                self.store.insert(key, VersionedFact { fact: incoming, version: 1 });
+                self.store.insert(
+                    key,
+                    VersionedFact {
+                        fact: incoming,
+                        version: 1,
+                    },
+                );
                 Ok(())
             }
-            Some(existing) => {
-                match resolver.resolve(&existing, &incoming) {
-                    Resolution::Accept => {
-                        let new_version = existing.version + 1;
-                        drop(existing);
-                        self.store.insert(key, VersionedFact { fact: incoming, version: new_version });
-                        Ok(())
-                    }
-                    Resolution::Reject => Err(MemoryError::ConflictRejected),
-                    Resolution::Merge(merged) => {
-                        let new_version = existing.version + 1;
-                        drop(existing);
-                        self.store.insert(key, VersionedFact { fact: merged, version: new_version });
-                        Ok(())
-                    }
+            Some(existing) => match resolver.resolve(&existing, &incoming) {
+                Resolution::Accept => {
+                    let new_version = existing.version + 1;
+                    drop(existing);
+                    self.store.insert(
+                        key,
+                        VersionedFact {
+                            fact: incoming,
+                            version: new_version,
+                        },
+                    );
+                    Ok(())
                 }
-            }
+                Resolution::Reject => Err(MemoryError::ConflictRejected),
+                Resolution::Merge(merged) => {
+                    let new_version = existing.version + 1;
+                    drop(existing);
+                    self.store.insert(
+                        key,
+                        VersionedFact {
+                            fact: merged,
+                            version: new_version,
+                        },
+                    );
+                    Ok(())
+                }
+            },
         }
     }
 
@@ -113,13 +129,13 @@ impl SharedSpace {
     /// # Panics
     /// This function never panics.
     pub fn read(&self, key: &str) -> Result<VersionedFact, MemoryError> {
-        self.store
-            .get(key)
-            .map(|v| v.clone())
-            .ok_or_else(|| {
-                // Use a synthetic MemoryId for the NotFound error key.
-                MemoryError::Persistence(format!("key '{key}' not found in namespace '{}'", self.namespace))
-            })
+        self.store.get(key).map(|v| v.clone()).ok_or_else(|| {
+            // Use a synthetic MemoryId for the NotFound error key.
+            MemoryError::Persistence(format!(
+                "key '{key}' not found in namespace '{}'",
+                self.namespace
+            ))
+        })
     }
 
     /// Return the number of facts stored in this space.

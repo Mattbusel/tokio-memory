@@ -165,7 +165,9 @@ mod tests {
     fn test_confidence_invalid_range_returns_error_above_one() {
         let (a, s) = make_ids();
         let err = Episode::new(a, s, EpisodeKind::Observation, "x", 1.1, vec![]).unwrap_err();
-        assert!(matches!(err, MemoryError::InvalidConfidence { value } if (value - 1.1).abs() < 1e-5));
+        assert!(
+            matches!(err, MemoryError::InvalidConfidence { value } if (value - 1.1).abs() < 1e-5)
+        );
     }
 
     #[test]
@@ -178,8 +180,7 @@ mod tests {
     #[test]
     fn test_episode_content_stored_correctly() {
         let (a, s) = make_ids();
-        let ep = Episode::new(a, s, EpisodeKind::Interaction, "hello world", 0.5, vec![])
-            .unwrap();
+        let ep = Episode::new(a, s, EpisodeKind::Interaction, "hello world", 0.5, vec![]).unwrap();
         assert_eq!(ep.content, "hello world");
     }
 

@@ -23,7 +23,12 @@ pub struct MemorySnapshot {
 impl MemorySnapshot {
     /// Create a new snapshot for the given agent.
     pub fn new(agent_id: AgentId, episodes: Vec<Episode>, facts: Vec<Fact>) -> Self {
-        Self { agent_id, captured_at: Utc::now(), episodes, facts }
+        Self {
+            agent_id,
+            captured_at: Utc::now(),
+            episodes,
+            facts,
+        }
     }
 }
 
@@ -48,9 +53,14 @@ mod tests {
         let agent_id = AgentId::new();
         let session_id = SessionId::new();
         let ep = Episode::new(
-            agent_id.clone(), session_id, EpisodeKind::Observation,
-            "test content", 0.8, vec![],
-        ).unwrap();
+            agent_id.clone(),
+            session_id,
+            EpisodeKind::Observation,
+            "test content",
+            0.8,
+            vec![],
+        )
+        .unwrap();
         let snap = MemorySnapshot::new(agent_id, vec![ep], vec![]);
         let bytes = encode_snapshot(&snap).unwrap();
         let decoded = decode_snapshot(&bytes).unwrap();

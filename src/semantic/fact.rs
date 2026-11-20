@@ -84,7 +84,6 @@ impl Fact {
     }
 }
 
-
 impl Fact {
     /// Construct a [`Fact`] with an explicit [`MemoryId`] (for deterministic/idempotent upserts).
     pub fn with_id(
@@ -123,7 +122,9 @@ mod tests {
     fn test_fact_new_invalid_confidence_above_one_returns_error() {
         let e = EntityId::new("user:1");
         let err = Fact::new(e, "age", FactValue::Number(30.0), 1.5).unwrap_err();
-        assert!(matches!(err, MemoryError::InvalidConfidence { value } if (value - 1.5).abs() < 1e-5));
+        assert!(
+            matches!(err, MemoryError::InvalidConfidence { value } if (value - 1.5).abs() < 1e-5)
+        );
     }
 
     #[test]
